@@ -1,0 +1,12 @@
+#passwordGeneratorSuggestion {
+	background: grey;
+	border: 1px black solid;
+	color: white;
+	padding: 5px;
+}
+
+#passwordGeneratorSuggestion img, #passwordGeneratorSuggestion div {
+	display: inline;
+	vertical-align: middle;
+	margin: 0 2px;
+}

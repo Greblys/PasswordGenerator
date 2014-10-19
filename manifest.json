@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+
+  "name": "Password Generator",
+  "description": "Generates passwords",
+  "version": "1.0",
+	"icons": {"16": "images/lock-16.png",
+						"20": "images/lock-20.png",
+						"24": "images/lock-24.png",
+						"32": "images/lock-32.png",
+						"48": "images/lock-48.png",
+						"64": "images/lock-64.png",
+						"128": "images/lock-128.png"},
+
+  "browser_action": {
+    "default_icon": "images/lock-32.png",
+    "default_popup": "popup.html"
+  },
+
+  "permissions": [ "<all_urls>" ],
+	
+	"content_scripts": [
+		{
+			"matches" : ["<all_urls>"],
+			"css" : ["style.css"],
+			"js": ["js/jquery-2.1.1.min.js", "js/detect.js"]
+		}
+	],
+
+	"web_accessible_resources" : [ "images/*" ]
+
+}
