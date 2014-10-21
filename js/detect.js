@@ -12,11 +12,12 @@ keyboard[2] = [undefined,   'a', 's', 'd', 'f', 'g', 'h', 'j', 'k',       'l',  
 keyboard[3] = [['\\', '|'], 'z', 'x', 'c', 'v', 'b', 'n', 'm', [',', '<'], ['.', '>'], ['/', '?'], undefined,  undefined]
 
 function isRegistrationPage(){
-	return $('input[type="password"]').length > 0;
+  return $('input[type="password"]').length > 0;
 }
 
 function randomItem(array){
-  return Math.floor(Math.random() * array.length);
+  var i = Math.floor(Math.random() * array.length);
+  return {index: i, item: array[i]};
 }
 
 function generateBlizzard(){
@@ -25,14 +26,11 @@ function generateBlizzard(){
   var sugg = "";
   
   while (keyboard[row][col] === undefined) {
-    row = randomItem(keyboard);
-    col = randomItem(keyboard[row]);
+    row = randomItem(keyboard).index;
+    col = randomItem(keyboard[row]).index;
   }
   
   while(sugg.length < 8){
-    console.log("iteration");
-    console.log(row);
-    console.log(col);
     var m = Math.round(Math.random());
     if($.isArray(keyboard[row][col])) 
       sugg += keyboard[row][col][m];
@@ -43,20 +41,27 @@ function generateBlizzard(){
         sugg += keyboard[row][col].toUpperCase();
     
     var next = { row: -1, col: -1 };
-    while(next.row < 0 || next.row >= keyboard.length || next.col < 0 || next.col >= keyboard[next.row].length)
-      next = randomItem([
-        { row: row-1, col: col-1 }, { row: row-1, col: col }, { row: row-1, col: col+1 },
-        { row: row,   col: col-1 },                           { row: row,   col: col+1 },
-        { row: row+1, col: col-1 }, { row: row+1, col: col }, { row: row+1, col: col+1 }
-      ]);
+    while(
+          keyboard[next.row] === undefined
+          || keyboard[next.row][next.col] === undefined) {
+      
+      neighbours = [
+        /*{ row: row-1, col: col-1 },*/   { row: row-1, col: col },   { row: row-1, col: col+1 },
+          { row: row,   col: col-1 },                                 { row: row,   col: col+1 },
+          { row: row+1, col: col-1 },     { row: row+1, col: col }/*, { row: row+1, col: col+1 }*/
+      ];
+      next = randomItem(neighbours).item
+    }
     row = next.row;
-    col = next.col;
+    col = next.col; 
   }
   return sugg;
 }
 
 $(document).ready(function(){
-  console.log(generateBlizzard());
+  for (var i = 0; i < 100; i++) {
+    console.log(generateBlizzard());
+  }
 	if(isRegistrationPage()) 
 		$('input[type="password"]').keyup(function() {
 			$(suggestionBox).remove();
