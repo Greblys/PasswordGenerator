@@ -10,3 +10,9 @@
 	vertical-align: middle;
 	margin: 0 2px;
 }
+
+#imageReminder {
+	background: url('chrome-extension://jgimfkicpcpfimdpjhhoabpljmjnbdja/images/keyboard.jpg') 0 0;
+	position: relative;
+	z-index: 999999;
+}
