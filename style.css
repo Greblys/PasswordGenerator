@@ -16,3 +16,8 @@
 	position: relative;
 	z-index: 999999;
 }
+
+#passwordGeneratorSuggestion a,#passwordGeneratorSuggestion a:visited,#passwordGeneratorSuggestion a:hover,#passwordGeneratorSuggestion a:active{
+  color: #d2d3d5;
+  cursor: pointer;
+}
