@@ -4,10 +4,10 @@ var COORD_STEP = 36;
 var Y_START = 26;
 var WIDTH = 25;
 
-keyboard[0] = {x_start: 26, keys: [['`', '¬'], ['1', '!'], ['2', '"'], ['3', '£'], ['4', '$'], ['5', '%'], ['6', '^'], ['7', '&'], ['8', '*'], ['9', '('],  ['0', ')'], ['-', '_'], ['=', '+']]}
-keyboard[1] = {x_start: 42, keys: [undefined, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',       'o',         'p',        ['[', '{'], [']', '}']]}
-keyboard[2] = {x_start: 54, keys: [undefined, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k',       'l',         [';', ':'], ["'", '@'], ['#', '~']]}
-keyboard[3] = {x_start: 74, keys: [['\\', '|'], 'z', 'x', 'c', 'v', 'b', 'n', 'm', [',', '<'], ['.', '>'], ['/', '?'], undefined,  undefined]}
+keyboard[0] = {x_start: 26, keys: [['`'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],  ['0'], ['-'], ['=']]}
+keyboard[1] = {x_start: 42, keys: [undefined, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',       'o',         'p',        ['['], [']']]}
+keyboard[2] = {x_start: 54, keys: [undefined, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k',       'l',         [';'], ["'"], ['#']]}
+keyboard[3] = {x_start: 74, keys: [['\\'], 'z', 'x', 'c', 'v', 'b', 'n', 'm', [','], ['.'], ['/'], undefined,  undefined]}
 
 var suggestionBox = $('\
 	<div id="passwordGeneratorSuggestion">\
@@ -54,21 +54,13 @@ function generateBlizzard(field){
 	}
 	
 	while(sugg.length < 8){
-		//animation
 		line.push({ x: col*COORD_STEP + keyboard[row].x_start, y: row*COORD_STEP+Y_START})
-		var m = Math.round(Math.random());
-		if($.isArray(keyboard[row].keys[col])) 
-			sugg += keyboard[row].keys[col][m];
-		else
-			if(m == 0)
-				sugg += keyboard[row].keys[col];
-			else
-				sugg += keyboard[row].keys[col].toUpperCase();
+		sugg += keyboard[row].keys[col];
 		
 		var next = { row: -1, col: -1 };
 		while( keyboard[next.row] === undefined
-					 || keyboard[next.row].keys[next.col] === undefined) {
-			
+					 || keyboard[next.row].keys[next.col] === undefined
+					 || sugg.indexOf(keyboard[next.row].keys[next.col]) > -1) {
 			neighbours = [
 				/*{ row: row-1, col: col-1 },*/   { row: row-1, col: col },   { row: row-1, col: col+1 },
 					{ row: row,   col: col-1 },                                 { row: row,   col: col+1 },
