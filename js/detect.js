@@ -118,6 +118,14 @@ function senduration(duration){
     });
   });
 }
+
+function removeLastDuration(){
+  getUserUniqueid(function(id){
+    $.get("http://passgenstorage.elasticbeanstalk.com/?task=removeLastDuration&userid="+id, function(response){
+      console.log("Response after removing last duration: " + response);
+    });
+  });
+}
 	
 $(document).ready(function(){
   getUserUniqueid(function(id){
@@ -128,6 +136,7 @@ $(document).ready(function(){
 			if(isWeak($(this).val())) {
 				$(this).after(suggestionBox);
 				suggestionBox.click(function(){
+				  removeLastDuration();
 				  suggestPassword(passwordField);
 				});
 				/*
