@@ -1,4 +1,5 @@
 
+var BASE_URL = "http://passgenstorage.elasticbeanstalk.com/";
 var keyboard = new Array();
 var COORD_STEP = 36;
 var Y_START = 26;
@@ -11,10 +12,24 @@ keyboard[3] = {x_start: 74, keys: [undefined, 'z', 'x', 'c', 'v', 'b', 'n', 'm',
 
 var suggestionBox = $('\
 	<div id="passwordGeneratorSuggestion">\
-		<img src="' + chrome.extension.getURL("images/lock-16.png") + '" />\
-		<div>Your password is weak. You should add a digit, symbol, lowercase/uppercase letter or make it longer.  <a id="passGenSuggest">Would you like me to suggest good and strong password for you?</a></div>\
+		<img id="psg-logo" src="' + chrome.extension.getURL("images/lock-16.png") + '" />\
+		<a id="psg-close" href="javascript:;">\
+	    <img src="'+chrome.extension.getURL("images/close.png")+'" />\
+	  </a>\
+		<div> \
+		  Your password is weak. You should add a digit, symbol,\
+		  lowercase/uppercase letter or make it longer.  Would you like me to \
+		  suggest \
+		  <a href="javascript:;" id="suggestMemorable">decent and memorable</a> \
+		  or \
+		  <a href="javascript:;" id="suggestStrong">very strong</a> \
+		  password for you?\
+	  </div>\
 	</div>\
 ');
+
+var currentPassStrength = 0;
+var generatedType = "custom";
 
 function isRegistrationPage(){
 	return $('input[type="password"]').length > 0;
@@ -25,9 +40,32 @@ function randomItem(array){
 	return {index: i, item: array[i]};
 }
 
-function suggestPassword(field){
+function suggestMemorablePassword(field){
 	suggestionBox.remove();
 	generateBlizzard(field);
+}
+
+function suggestStrongPassword(field){
+  suggestionBox.remove();
+  var chars = "QWERTYUIOPASDFGHJKLZXCVBNqwertyuiopasdfghjklzxcvbnm1234567890¬`|\\!\"£$%^&*()_-+=[]{};'#,./:@~<>?";
+  var randomInts = [];
+  var suggestion = "";
+  //true randomness 
+  $.get("https://www.random.org/integers/?num=8&min=0&max="+(chars.length-1)+"&col=8&base=10&format=plain&rnd=new", 
+         function(data){
+            randomInts = data.split("\t");
+            for (var i = 0; i < 8; i++) {
+              suggestion += chars[parseInt(randomInts[i])];
+            }
+            var useSuggestion = $('<div id="passwordGeneratorSuggestion"><a>Use suggested password</a><h3>'+suggestion+'<h3></div>');
+	          $("#passwordGeneratorSuggestion").remove();
+	          $(field).after(useSuggestion);
+	          $(useSuggestion).click(function(){
+	            $(field).val(suggestion);
+	            generatedType = "secure";
+	          });
+         }
+  );
 }
 
 function generateBlizzard(field){
@@ -89,6 +127,7 @@ function generateBlizzard(field){
 	$(field).after(useSuggestion);
 	$(useSuggestion).click(function(){
 	  $(field).val(sugg);
+	  generatedType = "memorable";
 	});
 	//password generated - now animate it
 	var i = 0;
@@ -116,7 +155,7 @@ function isWeak(password) {
 function getUserUniqueid(callback) {
   chrome.storage.sync.get("id", function(id){
     if($.isEmptyObject(id)) 
-      $.get("http://passgenstorage.elasticbeanstalk.com/?task=getid", function(data){
+      $.get(BASE_URL+"?task=getid", function(data){
         chrome.storage.sync.set({"id": data});
         callback(data);
       });
@@ -127,7 +166,7 @@ function getUserUniqueid(callback) {
 
 function senduration(duration){
   getUserUniqueid(function(id){
-    $.get("http://passgenstorage.elasticbeanstalk.com/?task=submitDuration&duration="+duration+"&userid="+id, function(response){
+    $.get(BASE_URL+"?task=submitDuration&duration="+duration+"&userid="+id, function(response){
       console.log("Response from sending data: " + response);
     });
   });
@@ -135,8 +174,16 @@ function senduration(duration){
 
 function removeLastDuration(){
   getUserUniqueid(function(id){
-    $.get("http://passgenstorage.elasticbeanstalk.com/?task=removeLastDuration&userid="+id, function(response){
+    $.get(BASE_URL+"?task=removeLastDuration&userid="+id, function(response){
       console.log("Response after removing last duration: " + response);
+    });
+  });
+}
+
+function sendPasswordStrength(strength, generatedType){
+  getUserUniqueid(function(id){
+    $.get(BASE_URL+"?task=submitPassStrength&strength="+strength+"&type="+generatedType+"&userid="+id, function(response){
+      console.log("Response after submitting password strength: " + response);
     });
   });
 }
@@ -170,7 +217,6 @@ $(document).ready(function(){
 	  //two ways out of password field possible
 	  //first one
     $(passwordField).focusout(function() {
-      console.log(document.activeElement);
       senduration(window.performance.now() - startEnter);
       startEnter = undefined;
     });
@@ -178,20 +224,33 @@ $(document).ready(function(){
     $(passwordField).parents("form").submit(function() {
       if(startEnter)
         senduration(window.performance.now() - startEnter);
+      sendPasswordStrength(currentPassStrength, generatedType);
     });
-    //password strength meter
+    
+    $(passwordField).keyup(function() {
+      generatedType = "custom";
+      console.log(generatedType);
+    });
+    
     $(passwordField).pStrength({
-      'bind' : 'keyup',
       'onPasswordStrengthChanged' : function(passwordStrength, percentage){
+        currentPassStrength = percentage;
         $(suggestionBox).remove();
         if(percentage < 67) {
-          console.log("bad password");
           $(this).after(suggestionBox); 
-          suggestionBox.click(function(){
+          $(suggestionBox).find("#psg-close").click(function(){
+            $(suggestionBox).hide();
+          });
+          suggestionBox.find("#suggestMemorable").click(function(){
             console.log("click");
             removeLastDuration();
-            suggestPassword(passwordField);
+            suggestMemorablePassword(passwordField);
           }); 
+          suggestionBox.find("#suggestStrong").click(function(){
+            console.log("click");
+            removeLastDuration();
+            suggestStrongPassword(passwordField);
+          });
         }
       }
     });

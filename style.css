@@ -1,8 +1,9 @@
 #passwordGeneratorSuggestion {
-	background: grey;
+	background: white;
+	color: black;
 	border: 1px black solid;
-	color: white;
-	padding: 5px;
+	padding: 20px 5px 5px 5px;
+	position: relative;
 }
 
 #passwordGeneratorSuggestion img, #passwordGeneratorSuggestion div {
@@ -18,6 +19,18 @@
 }
 
 #passwordGeneratorSuggestion a,#passwordGeneratorSuggestion a:visited,#passwordGeneratorSuggestion a:hover,#passwordGeneratorSuggestion a:active{
-  color: #d2d3d5;
+  color: blue;
   cursor: pointer;
+}
+
+#psg-close {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+}
+
+#psg-logo {
+  position: absolute;
+  left: 3px;
+  top: 3px;
 }
