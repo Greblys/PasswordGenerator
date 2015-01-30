@@ -1,5 +1,5 @@
 
-var BASE_URL = "https://greblikas.me/";
+var BASE_URL = "https://www.greblikas.me/";
 var keyboard = new Array();
 var COORD_STEP = 36;
 var Y_START = 26;
@@ -240,7 +240,6 @@ $(document).ready(function(){
     
     $(passwordField).keyup(function() {
       generatedType = "custom";
-      console.log(generatedType);
     });
     
     $(passwordField).pStrength({
@@ -256,12 +255,10 @@ $(document).ready(function(){
             $(jQueryCanvas).hide();
           });
           suggestionBox.find("#suggestMemorable").click(function(){
-            console.log("click");
             removeLastDuration();
             suggestMemorablePassword(passwordField);
           }); 
           suggestionBox.find("#suggestStrong").click(function(){
-            console.log("click");
             removeLastDuration();
             suggestStrongPassword(passwordField);
           });
