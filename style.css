@@ -1,4 +1,4 @@
-#passwordGeneratorSuggestion {
+.pswSugg {
 	background: white;
 	color: black;
 	border: 1px black solid;
@@ -6,7 +6,7 @@
 	position: relative;
 }
 
-#passwordGeneratorSuggestion img, #passwordGeneratorSuggestion div {
+.pswSugg img, .pswSugg div {
 	display: inline;
 	vertical-align: middle;
 	margin: 0 2px;
@@ -18,7 +18,7 @@
 	z-index: 999999;
 }
 
-#passwordGeneratorSuggestion a,#passwordGeneratorSuggestion a:visited,#passwordGeneratorSuggestion a:hover,#passwordGeneratorSuggestion a:active{
+.pswSugg a,.pswSugg a:visited,.pswSugg a:hover,.pswSugg a:active{
   color: blue;
   cursor: pointer;
 }

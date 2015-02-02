@@ -12,7 +12,7 @@ keyboard[2] = {x_start: 54, keys: [undefined, 'a', 's', 'd', 'f', 'g', 'h', 'j',
 keyboard[3] = {x_start: 74, keys: [undefined, 'z', 'x', 'c', 'v', 'b', 'n', 'm', [','], ['.'], ['/'], undefined,  undefined]}
 
 var suggestionBox = $('\
-	<div id="passwordGeneratorSuggestion">\
+	<div id="passwordGenerator" class="pswSugg">\
 		<img id="psg-logo" src="' + chrome.extension.getURL("images/lock-16.png") + '" />\
 		<a id="psg-close" href="javascript:;">\
 	    <img src="'+chrome.extension.getURL("images/close.png")+'" />\
@@ -44,17 +44,17 @@ function randomItem(array){
 }
 
 function suggestMemorablePassword(field){
-	suggestionBox.remove();
+	suggestionBox.hide();
 	generateBlizzard(field);
 }
 
 function suggestStrongPassword(field){
-  suggestionBox.remove();
+  suggestionBox.hide();
   if(jQueryCanvas) jQueryCanvas.remove();
   var chars = "QWERTYUIOPASDFGHJKLZXCVBNqwertyuiopasdfghjklzxcvbnm1234567890¬`|\\!\"£$%^&*()_-+=[]{};'#,./:@~<>?";
   var randomInts = [];
   var suggestion = "";
-  var length = 12;
+  var length = 13;
   //true randomness 
   $.get("https://www.random.org/integers/?num="+length+"&min=0&max="+(chars.length-1)+"&col="+length+"&base=10&format=plain&rnd=new", 
          function(data){
@@ -62,11 +62,12 @@ function suggestStrongPassword(field){
             for (var i = 0; i < length; i++) {
               suggestion += chars[parseInt(randomInts[i])];
             }
-            useSuggestion = $('<div id="passwordGeneratorSuggestion"><a>Use suggested password</a><h3>'+suggestion+'<h3></div>');
+            useSuggestion = $('<div id="passwordGeneratorSuggestion" class="pswSugg"><a>Use suggested password</a><h3>'+suggestion+'<h3></div>');
 	          $("#passwordGeneratorSuggestion").remove();
 	          $(field).after(useSuggestion);
 	          $(useSuggestion).find("a").click(function(){
 	            $(field).val(suggestion);
+	            $(field).trigger("change");
 	            generatedType = "secure";
 	            removeLastDuration();
 	          });
@@ -128,11 +129,12 @@ function generateBlizzard(field){
 		row = next.row;
 		col = next.col; 
 	}
-	useSuggestion = $('<div id="passwordGeneratorSuggestion"><a>Use suggested password</a><h3>'+sugg+'<h3></div>');
+	useSuggestion = $('<div id="passwordGeneratorSuggestion" class="pswSugg"><a>Use suggested password</a><h3>'+sugg+'<h3></div>');
 	$("#passwordGeneratorSuggestion").remove();
 	$(field).after(useSuggestion);
 	$(useSuggestion).find("a").click(function(){
 	  $(field).val(sugg);
+	  $(field).trigger("change");
 	  generatedType = "memorable";
 	  removeLastDuration();  
 	});
@@ -175,20 +177,21 @@ function senduration(duration){
   getUserUniqueid(function(id){
     $.get(BASE_URL+"?task=submitDuration&duration="+duration+"&userid="+id, function(response){
       console.log("Response from sending data: " + response);
+      submittedDuration = true;
     });
   });
-  submittedDuration = true;
 }
 
 function removeLastDuration(){
-  if(submittedDuration) {
-    getUserUniqueid(function(id){
-      $.get(BASE_URL+"?task=removeLastDuration&userid="+id, function(response){
-        console.log("Response after removing last duration: " + response);
+  setTimeout(function() {
+    if(submittedDuration) 
+      getUserUniqueid(function(id){
+        $.get(BASE_URL+"?task=removeLastDuration&userid="+id, function(response){
+          console.log("Response after removing last duration: " + response);
+          submittedDuration = false;
+        });
       });
-    });
-    submittedDuration = false;
-  }
+  }, 1000);
 }
 
 function sendPasswordStrength(strength, generatedType){
@@ -242,28 +245,40 @@ $(document).ready(function(){
       generatedType = "custom";
     });
     
+    $(passwordField).after(suggestionBox);
+    $(suggestionBox).hide();
+    
+    $(suggestionBox).find("#psg-close").click(function(){
+      $(suggestionBox).remove();
+      $(useSuggestion).remove();
+      $(jQueryCanvas).remove();
+    });
+    
+    suggestionBox.click(function() {
+      removeLastDuration();
+    });
+    
+    suggestionBox.find("#suggestMemorable").click(function(ev){
+      ev.stopPropagation();
+      removeLastDuration();
+      suggestMemorablePassword(passwordField);
+    });
+     
+    suggestionBox.find("#suggestStrong").click(function(ev){
+      ev.stopPropagation();
+      removeLastDuration();
+      suggestStrongPassword(passwordField);
+    });
+          
     $(passwordField).pStrength({
-      'bind' : 'keyup',
       'onPasswordStrengthChanged' : function(passwordStrength, percentage){
         currentPassStrength = percentage;
-        $(suggestionBox).remove();
+        $(suggestionBox).hide();
         if(percentage < 67) {
-          $(this).after(suggestionBox); 
-          $(suggestionBox).find("#psg-close").click(function(){
-            $(suggestionBox).hide();
-            $(useSuggestion).hide();
-            $(jQueryCanvas).hide();
-          });
-          suggestionBox.find("#suggestMemorable").click(function(){
-            removeLastDuration();
-            suggestMemorablePassword(passwordField);
-          }); 
-          suggestionBox.find("#suggestStrong").click(function(){
-            removeLastDuration();
-            suggestStrongPassword(passwordField);
-          });
+          $(suggestionBox).show(); 
         }
       }
     });
   }
+  
 });
