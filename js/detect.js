@@ -66,7 +66,7 @@ function suggestStrongPassword(field){
 	          $("#passwordGeneratorSuggestion").remove();
 	          $(field).after(useSuggestion);
 	          $(useSuggestion).find("a").click(function(){
-	            $(field).val(suggestion);
+	            $('input[type="password"]').val(suggestion);
 	            $(field).trigger("change");
 	            generatedType = "secure";
 	            removeLastDuration();
@@ -133,7 +133,7 @@ function generateBlizzard(field){
 	$("#passwordGeneratorSuggestion").remove();
 	$(field).after(useSuggestion);
 	$(useSuggestion).find("a").click(function(){
-	  $(field).val(sugg);
+	  $('input[type="password"]').val(sugg);
 	  $(field).trigger("change");
 	  generatedType = "memorable";
 	  removeLastDuration();  
@@ -204,7 +204,9 @@ function sendPasswordStrength(strength, generatedType){
 	
 $(document).ready(function(){
   if(isRegistrationPage()) {
-	  var passwordField = $('input[type="password"]');
+    var passwordField = $('input[type="password"]');
+    if($(passwordField).size() > 1)
+      passwordField = $('input[type="password"]')[1];
     
 	  /*
 	  $(passwordField).keyup(function() {
