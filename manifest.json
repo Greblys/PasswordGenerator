@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Password Generator",
-  "description": "Generates passwords",
-  "version": "1.0",
+  "description": "Password generator",
+  "version": "1.1",
 	"icons": {"16": "images/lock-16.png",
 						"20": "images/lock-20.png",
 						"24": "images/lock-24.png",
